@@ -1,0 +1,39 @@
+(#"Table to Transform" as table)=>
+
+let
+    //transformation function
+    execute = (t, col) =>
+    let
+        //write transformations below
+        trimmed = Table.TransformColumns(t,{col,Text.Trim}),
+        upper = Table.TransformColumns(trimmed,{col,Text.Upper}),
+        
+        return = upper
+    in
+        return,
+    //End of function
+
+    //Iterator Function
+    iter = (inputs as list) =>
+    let
+        //defining (but really retrieving) inputs
+        currTable = inputs{0},
+        colNames = inputs{1},
+        i = inputs{2},
+        maxI = List.NonNullCount(colNames),
+        
+        newT = execute(currTable,colNames{i}),
+
+        return = if i < maxI then @iter({newT,colNames, i+1}) else currTable
+    
+    in
+        return,
+
+    //parameters for overal function
+    inputTable = #"Table to Transform", //redefining param
+    colsToTransform = Table.ColumnsOfType(inputTable,{type nullable text}),
+    j = 0,
+    resultingTable = iter({inputTable,colsToTransform,j})
+
+in
+    resultingTable
